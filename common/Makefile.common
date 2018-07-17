@@ -1,0 +1,73 @@
+.PHONY: all clean depend test test1 test2 benchmark benchmark1 benchmark2
+.DELETE_ON_ERROR:
+
+CXX:=$(shell ../util/find-cxx)
+ifeq ($(CXX),)
+$(error could not find a suitable C++ complier)
+endif
+
+CXXFLAGS=-g -gdwarf-3 -std=c++11 -Wall -Wextra -Werror -Wno-error=unused-parameter -Wno-error=unused-function -Wno-error=unknown-pragmas
+ifeq ($(ARCH),1)
+else
+CXXFLAGS+=-march=native $(shell ../util/find-flags)
+endif
+ifeq ($(DEBUG),1)
+else ifeq ($(DEBUG),2)
+CXXFLAGS+=$(shell ../util/find-sanity $(CXX))
+LDFLAGS+=$(shell ../util/find-sanity $(CXX))
+else ifeq ($(DEBUG),3)
+CXXFLAGS+=-D_GLIBCXX_DEBUG
+CXXFLAGS+=$(shell ../util/find-sanity $(CXX))
+LDFLAGS+=$(shell ../util/find-sanity $(CXX))
+else
+CXXFLAGS+=-O3
+endif
+
+SOURCES:=*.cc
+
+TEST=./test.sh
+TEST1=./test.sh
+BENCHMARK=./benchmark.sh
+BENCHMARK1=./benchmark.sh
+
+all: $(bin)
+
+test: $(bin)
+	@$(MAKE) -s -C ../common
+	@$(TEST)
+	@echo "PASSED."
+
+test1: $(bin)
+	@$(MAKE) -s -C ../common
+	@$(TEST1)
+	@echo "PASSED."
+
+test2: $(bin)
+	@$(MAKE) -s -C ../common
+	@$(TEST) 2
+	@echo "PASSED."
+
+benchmark: $(bin)
+	@$(BENCHMARK)
+
+benchmark1: $(bin)
+	@$(BENCHMARK1)
+
+benchmark2: $(bin)
+	@$(BENCHMARK) 2
+
+%.s : %.cc
+	$(CXX) -S -fverbose-asm $(CXXFLAGS) $^
+
+%.asm1 : %.s
+	c++filt < $^ > $@
+
+%.asm2 : %.o
+	../util/objdump-wrapper -d -S $^ > $@
+
+depend:
+	$(CXX) -MM $(CXXFLAGS) -x c++ $(SOURCES) > Makefile.dep
+
+clean:
+	rm -f $(bin) *.o *.s *.asm1 *.asm2
+

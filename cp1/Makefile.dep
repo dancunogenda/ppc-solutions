@@ -1,0 +1,6 @@
+cp-benchmark.o: cp-benchmark.cc error.h timer.h cp.h
+cp-test.o: cp-test.cc error.h timer.h cp.h
+cp.o: cp.cc cp.h
+error.o: error.cc error.h
+pngcorrelate.o: pngcorrelate.cc pngio.h image.h error.h timer.h cp.h
+pngio.o: pngio.cc pngio.h image.h error.h

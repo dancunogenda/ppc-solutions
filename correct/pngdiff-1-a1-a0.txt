@@ -1,0 +1,5 @@
+data/a1.png: 300x200
+data/a0.png: 300x200
+20 differences at most 1
+1786 differences larger than 1
+maximum difference is 220

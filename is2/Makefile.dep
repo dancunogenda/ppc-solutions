@@ -1,0 +1,6 @@
+error.o: error.cc error.h
+is-benchmark.o: is-benchmark.cc error.h timer.h is.h
+is.o: is.cc is.h vector.h
+pngio.o: pngio.cc pngio.h image.h error.h
+pngsegment.o: pngsegment.cc pngio.h image.h error.h timer.h is.h
+vector.o: vector.cc vector.h

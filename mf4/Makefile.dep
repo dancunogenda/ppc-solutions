@@ -1,0 +1,6 @@
+error.o: error.cc error.h
+mf-benchmark.o: mf-benchmark.cc error.h timer.h mf.h
+mf-test.o: mf-test.cc mf.h
+pngio.o: pngio.cc pngio.h image.h error.h
+pngmf.o: pngmf.cc pngio.h image.h error.h timer.h mf.h
+mf.o: mf.cu mf.h

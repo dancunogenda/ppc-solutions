@@ -1,0 +1,111 @@
+#include<iostream>
+#include<numeric>
+#include<algorithm>
+#include<functional>
+
+#include "cp.h"
+
+void correlate(int ny, int nx, const float* data, float* result) 
+{
+  //std::cout<<std::endl<<"correlate"<<std::endl;
+  float normalised_data[ny*nx];
+  float *ndata= normalised_data;
+#pragma omp parallel for
+  for(int i=0; i<ny; i++)
+  {
+    int di_s= i*nx;
+    int di_e= i*nx+nx;
+    float mean= std::accumulate(data+di_s, data+di_e, 0.0f, 
+                  std::plus<float>())/nx;
+    std::transform(data+di_s, data+di_e, ndata+di_s, 
+          bind2nd(std::minus<float>(), mean));
+    float x_mu[nx];
+    std::transform(ndata+di_s, ndata+di_e, ndata+di_s, x_mu,
+          std::multiplies<float>());
+    float var= std::sqrt(std::accumulate(x_mu, x_mu+nx, 0.0f, 
+                            std::plus<float>()));
+    std::transform(ndata+di_s, ndata+di_e, ndata+di_s, 
+          bind2nd(std::divides<float>(), var));
+  }
+  float p[nx];
+  for(int j=0; j<ny; j++)
+  {
+    for(int i=j; i<ny; i++)
+    {
+      std::transform(ndata+(j*nx), ndata+(j*nx+nx), ndata+(i*nx), p,
+            std::multiplies<float>());
+      result[i+ny*j]= std::accumulate(p, p+nx, 0.0, std::plus<float>());
+    }
+  }
+  /*
+  std::cout<<"matrix:"<<std::endl;
+  for(int j=0; j<ny; j++)
+  {
+    for(int i=0; i<nx; i++)
+      std::cout<<ndata[j*nx+i]<<" ";
+    std::cout<<std::endl;
+  }
+  */
+
+  //matrix multiplication
+  
+  /*
+  for(int j=0; j<ny; j++)
+  {
+    //double sa= std::accumulate(data+(j*nx), data+(j*nx+nx), 0.0, 
+    //              std::plus<double>());
+    for(int i=j; i<ny; i++)
+    {
+      //double sa= 0.0;
+      double sb= 0.0;
+      double sab= 0.0;
+      double saa= 0.0;
+      double sbb= 0.0;
+      for(int x=0; x<nx; x++)
+      {
+        double a= data[x + nx*j];
+        double b= data[x + nx*i];
+        //sa += a;
+        sb += b;
+        sab += a*b;
+        saa += a*a;
+        sbb += b*b;
+      }
+      double r= nx*sab - sa*sb;
+      r/=std::sqrt(nx*saa - sa*sa);
+      r/=std::sqrt(nx*sbb - sb*sb);
+      result[i +ny*j]= r;
+    }
+  }
+  */
+  /*
+  for (int j=0; j<ny; j++) 
+  {
+    double aa[nx];
+    double suma= std::accumulate(data+(j*nx), data+(j*nx+nx), 0.0, 
+                   std::plus<double>());
+    std::transform(data+(j*nx), data+(j*nx+nx), data+(j*nx), aa, 
+                  std::multiplies<double>());
+    double sumaa= std::accumulate(aa, aa+nx, 0.0, std::plus<double>());
+    //std::cout<<suma<<sumaa<<std::endl;
+    for(int i=j; i<ny; i++)
+    {
+      double bb[nx];
+      double ab[nx];
+      double sumb= std::accumulate(data+(i*nx), data+(i*nx+nx), 0.0,
+                    std::plus<double>());
+      std::transform(data+(i*nx), data+(i*nx+nx), data+(i*nx), bb,
+              std::multiplies<double>());
+      double sumbb= std::accumulate(bb, bb+nx, 0.0, std::plus<double>());
+      std::transform(data+(i*nx), data+(i*nx+nx), data+(j*nx), ab,
+              std::multiplies<double>());
+      double sumab= std::accumulate(ab, ab+nx, 0.0, std::plus<double>());
+
+      double r= nx*sumab - suma*sumb;
+      r/=std::sqrt(nx*sumaa - suma*suma);
+      r/=std::sqrt(nx*sumbb - sumb*sumb);
+      result[i+ny*j]= r;
+    }
+  }
+    */
+}

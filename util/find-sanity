@@ -1,0 +1,16 @@
+#!/bin/sh
+
+case "$($1 -dumpversion)" in
+4.8*)
+    echo "-fsanitize=address"
+    exit 0
+    ;;
+4.9*)
+    echo "-fsanitize=address -fsanitize=undefined"
+    exit 0
+    ;;
+5.*)
+    echo "-fsanitize=address -fsanitize=undefined"
+    exit 0
+    ;;
+esac

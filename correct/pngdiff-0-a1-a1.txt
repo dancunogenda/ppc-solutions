@@ -1,0 +1,4 @@
+data/a1.png: 300x200
+data/a1.png: 300x200
+0 differences larger than 0
+maximum difference is 0

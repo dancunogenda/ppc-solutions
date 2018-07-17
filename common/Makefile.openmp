@@ -1,0 +1,5 @@
+include ../common/Makefile.common
+CXXFLAGS+=-fopenmp
+LDFLAGS+=-fopenmp
+TEST:=../common/openmp-test-wrap.sh $(TEST)
+BENCHMARK:=../common/openmp-test-wrap.sh $(BENCHMARK)
